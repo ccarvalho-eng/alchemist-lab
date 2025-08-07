@@ -16,30 +16,25 @@ RUN groupadd -g $GID $USER && \
   useradd -m -u $UID -g $GID -s /bin/zsh $USER && \
   echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Update system and install packages in a single layer
+# Update system and install packages
 RUN pacman -Syu --noconfirm && \
   pacman -S --noconfirm \
-  # Essential system packages
   base-devel \
   sudo \
   openssh \
   curl \
   wget \
   git \
-  # Shell and terminal tools
   zsh \
   bash-completion \
   tmux \
-  # Text editors
   vim \
   neovim \
-  # Development tools
   python \
   python-pip \
   nodejs \
   npm \
   yarn \
-  # System utilities
   man-db \
   net-tools \
   iputils \
@@ -47,7 +42,6 @@ RUN pacman -Syu --noconfirm && \
   which \
   htop \
   tree \
-  # Modern CLI tools
   starship \
   fzf \
   ripgrep \
@@ -59,12 +53,8 @@ RUN pacman -Syu --noconfirm && \
   httpie \
   direnv \
   lazygit && \
-  # Clean package cache to reduce image size
   pacman -Scc --noconfirm && \
-  # Remove unnecessary files
-  rm -rf /var/cache/pacman/pkg/* \
-  /tmp/* \
-  /var/tmp/*
+  rm -rf /var/cache/pacman/pkg/* /tmp/* /var/tmp/*
 
 # Switch to non-root user early
 USER $USER
@@ -74,12 +64,8 @@ WORKDIR /home/$USER
 RUN mkdir -p /home/$USER/.config \
   /home/$USER/workspace
 
-# Configure Neovim
-RUN git clone --depth=1 --branch=main \
-  https://github.com/ccarvalho-eng/lazyvim-configs.git \
-  /home/$USER/.config/nvim
-
 # Copy configuration files
+COPY .config/nvim /home/$USER/.config/nvim
 COPY .config/starship/starship.toml /home/$USER/.config/starship.toml
 COPY .config/zsh/.zshrc /home/$USER/.zshrc
 

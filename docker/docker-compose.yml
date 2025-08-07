@@ -2,8 +2,8 @@ services:
   devbox:
     platform: linux/amd64
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: arch-dev
     volumes:
       - ~/Projects:/home/workspace/projects
