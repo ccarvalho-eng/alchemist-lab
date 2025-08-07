@@ -1,0 +1,19 @@
+services:
+  devbox:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arch-dev
+    volumes:
+      - ~/Projects:/home/dev/Projects
+    tty: true
+    stdin_open: true
+    ports:
+      - "2222:22"
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    driver: bridge
