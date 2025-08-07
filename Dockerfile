@@ -79,30 +79,9 @@ RUN git clone --depth=1 --branch=main \
   https://github.com/ccarvalho-eng/lazyvim-configs.git \
   /home/$USER/.config/nvim
 
-# Configure Starship prompt with proper multiline TOML
-RUN cat <<EOF > /home/$USER/.config/starship.toml
-format = "\$all\$character"
-
-[character]
-success_symbol = "[➜](bold green)"
-error_symbol = "[➜](bold red)"
-EOF
-
-# Configure Zsh with aliases, starship init and environment variables
-RUN echo '# Starship prompt' >> /home/$USER/.zshrc && \
-  echo 'eval "$(starship init zsh)"' >> /home/$USER/.zshrc && \
-  echo '' >> /home/$USER/.zshrc && \
-  echo '# Environment' >> /home/$USER/.zshrc && \
-  echo 'export TERM=xterm-256color' >> /home/$USER/.zshrc && \
-  echo 'export EDITOR=nvim' >> /home/$USER/.zshrc && \
-  echo '' >> /home/$USER/.zshrc && \
-  echo '# Aliases' >> /home/$USER/.zshrc && \
-  echo 'alias ls="exa --icons"' >> /home/$USER/.zshrc && \
-  echo 'alias ll="exa -l --icons"' >> /home/$USER/.zshrc && \
-  echo 'alias la="exa -la --icons"' >> /home/$USER/.zshrc && \
-  echo 'alias cat="bat"' >> /home/$USER/.zshrc && \
-  echo 'alias find="fd"' >> /home/$USER/.zshrc && \
-  echo 'alias grep="rg"' >> /home/$USER/.zshrc
+# Copy configuration files
+COPY .config/starship/starship.toml /home/$USER/.config/starship.toml
+COPY .config/zsh/.zshrc /home/$USER/.zshrc
 
 # Set working directory for development
 WORKDIR /home/$USER/workspace
