@@ -67,6 +67,9 @@ COPY .config/zsh/.zshrc /home/workspace/.zshrc
 # Fix ownership of copied config files (as root)
 RUN chown -R $USER:$USER /home/workspace/.config /home/workspace/.zshrc
 
+# Set zsh as the default shell for the user
+RUN chsh -s /bin/zsh $USER
+
 # Switch to non-root user
 USER $USER
 WORKDIR /home/workspace
