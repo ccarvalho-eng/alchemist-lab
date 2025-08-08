@@ -4,9 +4,18 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      args:
+        - GIT_USER_NAME=${GIT_USER_NAME}
+        - GIT_USER_EMAIL=${GIT_USER_EMAIL}
     container_name: arch-dev
     volumes:
       - ~/Projects:/home/workspace/projects
+    environment:
+      - GIT_USER_NAME=${GIT_USER_NAME}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    env_file:
+      - ../.envrc
     tty: true
     stdin_open: true
     ports:

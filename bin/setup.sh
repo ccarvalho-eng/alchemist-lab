@@ -2,7 +2,10 @@
 set -euo pipefail
 
 echo "Cleaning up old containers..."
-docker compose -f docker/docker-compose.yml down --remove-orphans
+# Stop and remove any existing containers
+docker compose -f docker/docker-compose.yml down --remove-orphans || true
+# Also remove any standalone container with this name
+docker rm -f arch-dev 2>/dev/null || true
 
 echo "Building Docker image..."
 docker compose -f docker/docker-compose.yml build --no-cache

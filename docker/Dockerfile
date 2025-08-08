@@ -10,10 +10,12 @@ ENV LANG=C.UTF-8 \
 ARG USER=dev
 ARG UID=1000
 ARG GID=1000
+ARG GIT_USER_NAME
+ARG GIT_USER_EMAIL
 
 # Create user and group first to leverage Docker layer caching
 RUN groupadd -g $GID $USER && \
-  useradd -m -u $UID -g $GID -s /bin/zsh $USER && \
+  useradd -m -u $UID -g $GID -s /bin/zsh -d /home/workspace $USER && \
   echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Update system and install packages
@@ -56,21 +58,30 @@ RUN pacman -Syu --noconfirm && \
   pacman -Scc --noconfirm && \
   rm -rf /var/cache/pacman/pkg/* /tmp/* /var/tmp/*
 
-# Switch to non-root user early
+# Copy configuration files (as root)
+COPY .config/nvim /home/workspace/.config/nvim
+COPY .config/starship/starship.toml /home/workspace/.config/starship.toml
+COPY .config/lazygit/config.yml /home/workspace/.config/lazygit/config.yml
+COPY .config/zsh/.zshrc /home/workspace/.zshrc
+
+# Fix ownership of copied config files (as root)
+RUN chown -R $USER:$USER /home/workspace/.config /home/workspace/.zshrc
+
+# Switch to non-root user
 USER $USER
-WORKDIR /home/$USER
+WORKDIR /home/workspace
 
 # Set up user configuration directories
-RUN mkdir -p /home/$USER/.config \
-  /home/$USER/workspace
+RUN mkdir -p /home/workspace/projects
 
-# Copy configuration files
-COPY .config/nvim /home/$USER/.config/nvim
-COPY .config/starship/starship.toml /home/$USER/.config/starship.toml
-COPY .config/zsh/.zshrc /home/$USER/.zshrc
+# Configure Git with build args
+RUN if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then \
+      git config --global user.name "$GIT_USER_NAME" && \
+      git config --global user.email "$GIT_USER_EMAIL"; \
+    fi
 
 # Set working directory for development
-WORKDIR /home/$USER/workspace
+WORKDIR /home/workspace
 
 # Health check to ensure the container is working properly
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
