@@ -25,22 +25,31 @@ RUN groupadd -g $GID $USER && \
 # Update system and install packages
 RUN pacman -Syu --noconfirm && \
   pacman -S --noconfirm \
+  # System essentials
   base-devel \
   sudo \
   openssh \
   curl \
   wget \
+  # Version control
   git \
+  # Shell and terminal
   zsh \
+  zsh-autosuggestions \
+  zsh-syntax-highlighting \
   bash-completion \
   tmux \
+  starship \
+  # Editors
   vim \
   neovim \
+  # Development languages
   python \
   python-pip \
   nodejs \
   npm \
   yarn \
+  # System utilities
   man-db \
   net-tools \
   iputils \
@@ -48,7 +57,7 @@ RUN pacman -Syu --noconfirm && \
   which \
   htop \
   tree \
-  starship \
+  # Modern CLI tools
   fzf \
   ripgrep \
   bat \
@@ -58,7 +67,14 @@ RUN pacman -Syu --noconfirm && \
   git-delta \
   httpie \
   direnv \
-  lazygit && \
+  lazygit \
+  zoxide \
+  bottom \
+  dust \
+  procs \
+  tokei \
+  hyperfine \
+  github-cli && \
   # Clean package cache to reduce image size
   pacman -Scc --noconfirm && \
   rm -rf /var/cache/pacman/pkg/* /tmp/* /var/tmp/*
