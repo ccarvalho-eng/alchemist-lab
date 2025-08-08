@@ -6,6 +6,10 @@ ENV LANG=C.UTF-8 \
   PYTHONDONTWRITEBYTECODE=1 \
   PYTHONUNBUFFERED=1
 
+# Python environment optimizations:
+# - PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files
+# - PYTHONUNBUFFERED: Forces stdout/stderr streams to be unbuffered for real-time output
+
 # Build arguments with defaults
 ARG USER=dev
 ARG UID=1000
@@ -55,6 +59,7 @@ RUN pacman -Syu --noconfirm && \
   httpie \
   direnv \
   lazygit && \
+  # Clean package cache to reduce image size
   pacman -Scc --noconfirm && \
   rm -rf /var/cache/pacman/pkg/* /tmp/* /var/tmp/*
 
@@ -64,7 +69,7 @@ COPY .config/starship/starship.toml /home/workspace/.config/starship.toml
 COPY .config/lazygit/config.yml /home/workspace/.config/lazygit/config.yml
 COPY .config/zsh/.zshrc /home/workspace/.zshrc
 
-# Fix ownership of copied config files (as root)
+# Fix ownership of copied config files to match the non-root user
 RUN chown -R $USER:$USER /home/workspace/.config /home/workspace/.zshrc
 
 # Set zsh as the default shell for the user
@@ -74,16 +79,16 @@ RUN chsh -s /bin/zsh $USER
 USER $USER
 WORKDIR /home/workspace
 
-# Set up user configuration directories
+# Set up user configuration directories for development work
 RUN mkdir -p /home/workspace/projects
 
-# Configure Git with build args
+# Configure Git with build args if provided
 RUN if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then \
       git config --global user.name "$GIT_USER_NAME" && \
       git config --global user.email "$GIT_USER_EMAIL"; \
     fi
 
-# Set working directory for development
+# Set final working directory for development
 WORKDIR /home/workspace
 
 # Health check to ensure the container is working properly
