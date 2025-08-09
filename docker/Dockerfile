@@ -45,8 +45,7 @@ RUN cargo install procs || true
 RUN cargo install tokei || true
 RUN cargo install hyperfine || true
 
-# Install lazygit (Go-based tool) using GitHub releases
-# Note: lazygit is written in Go, not Rust, so we install it separately
+# Install lazygit
 RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') \
     && curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
     && tar xf lazygit.tar.gz lazygit \
@@ -55,7 +54,7 @@ RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygi
 
 # Stage 2: Main Development Environment
 # ------------------------------------------------------------------------------
-# Use Elixir 1.18.2 with Erlang OTP 27.2 on Debian Bookworm
+# Use Elixir 1.18.2 with Erlang OTP 27.2 on Debian Bookworm (stable, tested combination)
 FROM hexpm/elixir:1.18.2-erlang-27.2-debian-bookworm-20250113-slim
 
 # Environment Variables
@@ -102,6 +101,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libncurses5-dev \
     libncursesw5-dev \
     libtinfo-dev \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Modern CLI Tools (Debian packages)
@@ -173,12 +177,18 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 COPY --from=rust-builder /usr/local/cargo/bin/ /usr/local/bin/
 COPY --from=rust-builder /usr/local/bin/lazygit /usr/local/bin/lazygit
 
+# Install Starship prompt (as root)
+# ------------------------------------------------------------------------------
+RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
+
 # User Setup
 # ------------------------------------------------------------------------------
-# Create development user with sudo privileges
+# Create development user with proper security measures
+# Generate a secure random password for the user
 RUN groupadd -g $GID $USER \
     && useradd -m -u $UID -g $GID -s /bin/zsh -d /home/$USER $USER \
-    && echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER \
+    && echo "$USER:$(openssl rand -base64 32)" | chpasswd \
+    && echo "$USER ALL=(ALL) PASSWD:ALL" > /etc/sudoers.d/$USER \
     && chmod 440 /etc/sudoers.d/$USER \
     && chown -R $USER:$USER /home/$USER
 
@@ -186,11 +196,8 @@ RUN groupadd -g $GID $USER \
 USER $USER
 WORKDIR /home/workspace
 
-# Shell Configuration
+# Shell Configuration (after user switch)
 # ------------------------------------------------------------------------------
-# Install Starship prompt
-RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
-
 # Install Oh-My-Zsh with useful plugins
 # - zsh-autosuggestions: Suggests commands as you type
 # - zsh-syntax-highlighting: Highlights commands as you type
@@ -200,12 +207,20 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
     && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
        ${ZSH_CUSTOM:-/home/$USER/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
+# Install Elixir Dependencies
+# ------------------------------------------------------------------------------
+# Install Hex package manager, Rebar3 build tool, and Phoenix generator
+RUN mix local.hex --force \
+    && mix local.rebar --force \
+    && mix archive.install hex phx_new --force
+
 # Copy Configuration Files
 # ------------------------------------------------------------------------------
 COPY --chown=$USER:$USER .config/nvim /home/$USER/.config/nvim
 COPY --chown=$USER:$USER .config/starship/starship.toml /home/$USER/.config/starship.toml
 COPY --chown=$USER:$USER .config/lazygit/config.yml /home/$USER/.config/lazygit/config.yml
 COPY --chown=$USER:$USER .config/zsh/.zshrc /home/$USER/.zshrc
+
 
 # Create Projects Directory
 # ------------------------------------------------------------------------------
