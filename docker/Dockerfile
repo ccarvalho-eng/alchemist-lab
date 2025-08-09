@@ -135,16 +135,15 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
 
 # Install Yarn from official repository
 # ------------------------------------------------------------------------------
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarn-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/yarn-keyring.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update \
     && apt-get install -y yarn \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Neovim from GitHub releases
 # ------------------------------------------------------------------------------
-RUN NVIM_VERSION=$(curl -s "https://api.github.com/repos/neovim/neovim/releases/latest" | grep -Po '"tag_name": "\K[^"]*') \
-    && curl -Lo nvim.tar.gz "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz" \
+RUN curl -Lo nvim.tar.gz "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz" \
     && tar xf nvim.tar.gz --strip-components=1 -C /usr/local \
     && rm nvim.tar.gz
 
