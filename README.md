@@ -5,14 +5,17 @@ A comprehensive Elixir development environment using Docker with modern CLI tool
 ## Features
 
 ### Development Environment
+
 - **Elixir 1.18.2** with Erlang OTP 27.2
 - **PostgreSQL 17** with persistent data storage
+- **Node.js LTS** (latest) with npm and yarn
+- **Neovim** (latest) with LazyVim configuration
 - **Modern CLI Tools**: ripgrep, bat, exa, fzf, lazygit, and more
 - **Zsh with Oh My Zsh** and useful plugins
-- **Neovim** with LazyVim configuration
 - **Starship prompt** for beautiful terminal experience
 
 ### Database
+
 - PostgreSQL 17 Alpine with persistent volumes
 - Pre-configured connection environment variables
 - Accessible on `localhost:5432` from host
@@ -21,17 +24,21 @@ A comprehensive Elixir development environment using Docker with modern CLI tool
 ## Quick Start
 
 ### Prerequisites
+
 - Docker and Docker Compose
 - Git
 
 ### Setup
+
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd alchemist-lab
 ```
 
 2. Build and start the environment:
+
 ```bash
 ./bin/rebuild.sh
 ```
@@ -42,6 +49,7 @@ cd alchemist-lab
    - PostgreSQL running and accessible
 
 ### Scripts
+
 - `./bin/rebuild.sh` - Rebuild container with cache and enter shell
 - `./bin/setup.sh` - Initial setup script
 - `./bin/start.sh` - Start existing containers
@@ -49,7 +57,9 @@ cd alchemist-lab
 ## Database Configuration
 
 ### Environment Variables
+
 The following environment variables are available in the container:
+
 ```bash
 DATABASE_URL=postgres://postgres:postgres@postgres:5432/dev
 PGHOST=postgres
@@ -59,7 +69,9 @@ PGDATABASE=dev
 ```
 
 ### Connecting from Elixir Apps
+
 Add to your `config/dev.exs`:
+
 ```elixir
 config :your_app, YourApp.Repo,
   username: System.get_env("PGUSER", "postgres"),
@@ -74,6 +86,7 @@ config :your_app, YourApp.Repo,
 ## CLI Tools Available
 
 ### Modern Replacements
+
 - `rg` (ripgrep) - Fast text search
 - `bat` - Cat with syntax highlighting
 - `exa` - Modern ls replacement
@@ -83,6 +96,7 @@ config :your_app, YourApp.Repo,
 - `delta` - Git diff viewer
 
 ### Development Tools
+
 - `lazygit` - Git TUI
 - `gh` - GitHub CLI
 - `psql` - PostgreSQL client
@@ -112,6 +126,7 @@ alchemist-lab/
 ## Usage Examples
 
 ### Start a New Elixir Project
+
 ```bash
 # Inside the container
 cd projects
@@ -122,6 +137,7 @@ mix ecto.create  # Database will be created in PostgreSQL
 ```
 
 ### Database Operations
+
 ```bash
 # Connect to PostgreSQL
 psql
@@ -134,6 +150,7 @@ mix ecto.reset
 ```
 
 ### Git Operations with LazyGit
+
 ```bash
 # Open LazyGit TUI
 lazygit
@@ -142,17 +159,21 @@ lazygit
 ## Customization
 
 ### Adding New Tools
+
 Edit `docker/Dockerfile` to add additional packages or tools.
 
 ### Shell Configuration
+
 Modify `.config/zsh/.zshrc` to customize your shell experience.
 
 ### Database Configuration
+
 Update `docker/docker-compose.yml` to modify PostgreSQL settings.
 
 ## Troubleshooting
 
 ### Container Issues
+
 ```bash
 # Rebuild from scratch
 docker-compose -f docker/docker-compose.yml down
@@ -160,6 +181,7 @@ docker-compose -f docker/docker-compose.yml build --no-cache
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Check PostgreSQL is running
 docker ps
@@ -168,6 +190,7 @@ psql -h localhost -U postgres -d dev
 ```
 
 ### Permission Issues
+
 Ensure your user ID matches the container user (default: 1000).
 
 ## Contributing

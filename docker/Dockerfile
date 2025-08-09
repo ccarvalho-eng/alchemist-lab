@@ -90,11 +90,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     postgresql-client \
-    nodejs \
-    npm \
-    yarn \
     vim \
-    neovim \
     man-db \
     net-tools \
     iputils-ping \
@@ -131,6 +127,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     direnv \
     zoxide \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js LTS from NodeSource
+# ------------------------------------------------------------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs
+
+# Install Yarn from official repository
+# ------------------------------------------------------------------------------
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
+    && apt-get install -y yarn \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Neovim from GitHub releases
+# ------------------------------------------------------------------------------
+RUN NVIM_VERSION=$(curl -s "https://api.github.com/repos/neovim/neovim/releases/latest" | grep -Po '"tag_name": "\K[^"]*') \
+    && curl -Lo nvim.tar.gz "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz" \
+    && tar xf nvim.tar.gz --strip-components=1 -C /usr/local \
+    && rm nvim.tar.gz
 
 # Install git-delta from GitHub releases
 # ------------------------------------------------------------------------------
