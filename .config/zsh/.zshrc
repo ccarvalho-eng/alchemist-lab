@@ -1,3 +1,12 @@
+# Path to oh-my-zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="robbyrussell"
+
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+
+source $ZSH/oh-my-zsh.sh
+
 # Starship prompt
 eval "$(starship init zsh)"
 
@@ -5,31 +14,25 @@ eval "$(starship init zsh)"
 export TERM=xterm-256color
 export EDITOR=nvim
 
+# Initialize modern CLI tools first
+eval "$(zoxide init zsh)"
+
 # Aliases
 alias ls="exa --icons"
 alias ll="exa -l --icons"
 alias la="exa -la --icons"
-alias cat="bat"
-alias find="fd"
+alias cat="batcat"
+alias find="fdfind"
 alias grep="rg"
 alias lv="nvim"
-alias cd="z"
+alias vim="nvim"
 alias ps="procs"
 alias du="dust"
 alias top="btm"
-
-# Initialize modern CLI tools
-eval "$(zoxide init zsh)"
+alias lg="lazygit"
+alias http="http"
 
 # GitHub CLI completion
 if command -v gh &> /dev/null; then
   eval "$(gh completion -s zsh)"
 fi
-
-# Load zsh plugins
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Autosuggestion configuration
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666"
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)

@@ -7,7 +7,7 @@ services:
       args:
         - GIT_USER_NAME=${GIT_USER_NAME}
         - GIT_USER_EMAIL=${GIT_USER_EMAIL}
-    container_name: arch-dev
+    container_name: alchemist-lab
     volumes:
       - ~/Projects:/home/workspace/projects
     environment:
